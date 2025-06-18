@@ -13,13 +13,11 @@ export default async function handler(req, res) {
     const response = await fetch(url);
     const html = await response.text();
 
-    // Extract the <h2> under .innerblock
-    const match = html.match(/<h2[^>]*>([^<]+)<\/h2>/i);
-    const title = match ? match[1].trim() : "Sunday title not found.";
+    // Grab the SECOND <h2> inside .innerblock
+    const matches = [...html.matchAll(/<h2[^>]*>([^<]+)<\/h2>/gi)];
+    const title = matches[1]?.[1].trim() || "Sunday title not found.";
 
     res.status(200).json({ title });
   } catch (err) {
     console.error("Fetch failed:", err);
-    res.status(500).json({ error: "Failed to fetch title." });
-  }
-}
+    res.status(500).json({ error: "Failed
