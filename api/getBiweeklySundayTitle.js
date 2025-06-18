@@ -1,3 +1,7 @@
+// File: /api/getBiweeklySundayTitle.js
+
+import fetch from 'node-fetch';
+
 export default async function handler(req, res) {
   const { dateCode } = req.query;
 
@@ -11,15 +15,13 @@ export default async function handler(req, res) {
     const response = await fetch(url);
     const html = await response.text();
 
-    // Extract ALL <h2> tags
-    const h2Matches = [...html.matchAll(/<h2[^>]*>([^<]+)<\/h2>/gi)];
+    // Extract ONLY the <h2> inside <div class="innerblock">
+    const match = html.match(/<div class="innerblock">[\s\S]*?<h2>(.*?)<\/h2>/i);
+    const title = match ? match[1].trim() : 'Sunday title not found.';
 
-    // The second one contains the real Sunday title
-    const title = h2Matches[1]?.[1].trim() || "Sunday title not found.";
-
-    return res.status(200).json({ title });
+    res.status(200).json({ title });
   } catch (err) {
-    console.error("❌ Server error:", err);
-    return res.status(500).json({ error: "Failed to fetch title." });
+    console.error("Fetch failed:", err);
+    res.status(500).json({ error: "Failed to fetch title." });
   }
 }
