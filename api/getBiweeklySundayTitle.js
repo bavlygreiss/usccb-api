@@ -1,5 +1,3 @@
-// File: /api/getBiweeklySundayTitle.js
-
 export default async function handler(req, res) {
   const { dateCode } = req.query;
 
@@ -13,9 +11,11 @@ export default async function handler(req, res) {
     const response = await fetch(url);
     const html = await response.text();
 
-    // Grab the 2nd <h2> tag (which contains the actual title)
-    const matches = [...html.matchAll(/<h2[^>]*>([^<]+)<\/h2>/gi)];
-    const title = matches[1]?.[1].trim() || "Sunday title not found.";
+    // Extract ALL <h2> tags
+    const h2Matches = [...html.matchAll(/<h2[^>]*>([^<]+)<\/h2>/gi)];
+
+    // The second one contains the real Sunday title
+    const title = h2Matches[1]?.[1].trim() || "Sunday title not found.";
 
     return res.status(200).json({ title });
   } catch (err) {
